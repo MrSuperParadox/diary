@@ -1,3 +1,5 @@
+from pickle import GLOBAL
+
 from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout, QWidget, QPushButton,  QListWidget, QPlainTextEdit, QListWidgetItem, QBoxLayout
 from cryptography.fernet import Fernet
@@ -15,9 +17,9 @@ if not os.path.exists(password_path):
     with open(password_path, 'w', encoding='utf-8') as filestream:
         pass
 
+keyword = ""
 
-
-
+namingbug = ""
 key = ""
 # keyword = "боевой кабан"
 # key = base64.urlsafe_b64encode(hashlib.sha256(keyword.encode()).digest())
@@ -29,19 +31,6 @@ key = ""
 #
 # decrypted = f.decrypt(token).decode()
 # print("decrypted:", decrypted)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -74,6 +63,10 @@ class MainWindow(QMainWindow):
         self.list.addItem(a)
         self.list.setItemWidget(a, self.r)
         self.list.addItems(os.listdir(vault_path))
+        for i in range(self.list.count()):
+            if self.list.item(i).text() == "password":
+                self.list.takeItem(i)
+                break
         self.list.currentTextChanged.connect(self.current_file)
         self.list.currentTextChanged.connect(self.read)
         self.list.setRowHidden(0, True)
@@ -81,9 +74,9 @@ class MainWindow(QMainWindow):
         self.naming = QLineEdit()
         self.naming.returnPressed.connect(self.rename)
 
-
         self.r.textChanged.connect(self.test)
         self.r.returnPressed.connect(self.returnation)
+        self.r.returnPressed.connect(self.bugs)
 
 
         self.input = QPlainTextEdit()
@@ -109,27 +102,52 @@ class MainWindow(QMainWindow):
         container.setLayout(layout)
 
         self.setCentralWidget(container)
-
+    def bugs(self):
+        print(self.savename)
     def read(self, s):
-        if not s: return
-        with open(os.path.join(vault_path, self.namefile), 'r', encoding='utf-8') as filestream:
-            self.input.setPlainText(filestream.read())
-            self.naming.setText(self.namefile)
+        global keyword
+        self.naming.setText(self.namefile)
+        if not s:
+            self.input.setPlainText("")
+            return
+        if s != "":
+            print("pizdec")
+            with open(os.path.join(vault_path, self.namefile), 'rb') as filestream:
+                print("pizdec2")
+                g = filestream.read()
+                print(g)
+                print(type(g))
+                if len(g) == 0:
+                    self.input.setPlainText("")
+                    return
+                print("danger")
+                key = base64.urlsafe_b64encode(hashlib.sha256(keyword.encode()).digest())
+
+                f = Fernet(key)
+
+                Fernetkin = f.decrypt(g).decode()
+
+                self.input.setPlainText(Fernetkin)
+
     def write(self):
+        global keyword
         s = self.r.text()
         if self.namefile or s != self.cringe(s):
-            with open(os.path.join(vault_path, self.namefile), 'w', encoding='utf-8') as filestream:
-                filestream.write(self.input.toPlainText())
+            with open(os.path.join(vault_path, self.namefile), 'wb') as filestream:
+                key = base64.urlsafe_b64encode(hashlib.sha256(keyword.encode()).digest())
+                f = Fernet(key)
+                Fernetkin = f.encrypt(self.input.toPlainText().encode())
+                filestream.write(Fernetkin)
+
     def cringe(self, u):
         for j in range(self.list.count()):
             if self.list.item(j).text() == u:
                 return self.list.item(j).text()
 
     def current_file(self, s):
-        if s != "":
+        if s != "" or self.input.toPlainText() != "":
             self.namefile = s
-            print(s)
-
+            #print(s)
     def test(self, s):
         self.savename = s
         print(self.savename)
@@ -150,10 +168,9 @@ class MainWindow(QMainWindow):
         if s != self.cringe(s):
             with open(os.path.join(vault_path, self.savename), 'w', encoding='utf-8') as filestream:
                 self.list.addItem(self.savename)
+                self.naming.clear()
                 self.r.clear()
                 self.list.setRowHidden(0, True)
-
-
 
     def create(self):
         self.list.setRowHidden(0, False)
@@ -166,6 +183,7 @@ class MainWindow(QMainWindow):
                 if self.list.item(i).text() == self.namefile:
                     self.list.takeItem(i)
                     break
+
 class passwrodcreationwindow(QMainWindow):
     def __init__(self, window):
         super().__init__()
@@ -174,19 +192,21 @@ class passwrodcreationwindow(QMainWindow):
         self.passworedenter.setWindowTitle("Password Creation")
         self.passworedenter.show()
         self.passworedenter.returnPressed.connect(self.passworde)
+
     def passworde(self):
         if self.passworedenter.text() != "":
             with open(password_path, 'w', encoding='utf-8') as filestream:
                 key = base64.urlsafe_b64encode(hashlib.sha256(self.passworedenter.text().encode()).digest())
                 f = Fernet(key)
+                global keyword
+                keyword = self.passworedenter.text()
                 origintext = self.passworedenter.text()
                 corruptedtext = f.encrypt(origintext.encode()).decode()
                 fireborn = f.decrypt(corruptedtext).decode()
-                print(corruptedtext)
-                print(fireborn)
                 filestream.write(corruptedtext)
                 self.passworedenter.hide()
                 self.window.show()
+
 class PsPsWindow(QMainWindow):
     def __init__(self, window, filestream):
         super().__init__()
@@ -196,25 +216,28 @@ class PsPsWindow(QMainWindow):
         self.password.show()
         self.password.setWindowTitle("Enter Password")
         self.password.returnPressed.connect(self.passwordentered)
+
     def passwordentered(self):
         with open(password_path, 'r', encoding='utf-8') as pizdec:
             key = base64.urlsafe_b64encode(hashlib.sha256(self.password.text().encode()).digest())
             f = Fernet(key)
             xyq = pizdec.read()
             origin = f.encrypt(self.password.text().encode())
-
             decrorigin = f.decrypt(origin).decode()
             try:
                 cringe = f.decrypt(xyq).decode()
                 print(cringe)
                 print(decrorigin)
                 if self.password.text() == cringe:
+                    global keyword
+                    keyword = self.password.text()
                     self.password.hide()
                     self.window.show()
             except:
                 print("password error")
 
-
+def FernetIntegration():
+    pass
 app = QApplication(sys.argv)
 window = MainWindow()
 with open(password_path, 'r', encoding='utf-8') as filestream:
