@@ -81,11 +81,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
     def read(self, s):
         global keyword
-        self.naming.setText(self.namefile)
         if not s:
-            self.input.setPlainText("")
-            return
+              self.input.clear()
+              self.naming.clear()
+              return
         if s != "":
+            self.naming.setText(self.namefile)
             with open(os.path.join(vault_path, self.namefile), 'rb') as filestream:
                 g = filestream.read()
                 if len(g) == 0:
@@ -113,6 +114,7 @@ class MainWindow(QMainWindow):
     def test(self, s):
         self.savename = s
 
+
     def rename(self):
         s = self.naming.text()
         if self.namefile != "" and s != "" and s != self.cringe(s):
@@ -120,10 +122,10 @@ class MainWindow(QMainWindow):
             new_file = os.path.join(vault_path, s)
             for i in range(self.list.count()):
                 if self.list.item(i).text() == self.namefile:
+                    self.naming.clear()
                     self.list.takeItem(i)
                     os.rename(old_file, new_file)
                     self.list.addItem(s)
-                    self.naming.clear()
 
     def returnation(self):
         s = self.r.text()
