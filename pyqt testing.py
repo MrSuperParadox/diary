@@ -81,10 +81,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
     def read(self, s):
         global keyword
+        self.list.clearSelection()
         if not s:
-              self.input.clear()
-              self.naming.clear()
-              return
+            self.naming.clear()
+            self.input.clear()
         if s != "":
             self.naming.setText(self.namefile)
             with open(os.path.join(vault_path, self.namefile), 'rb') as filestream:
@@ -97,7 +97,7 @@ class MainWindow(QMainWindow):
     def write(self):
         global keyword
         s = self.r.text()
-        if self.namefile or s != self.cringe(s):
+        if (self.namefile or s != self.cringe(s)) and self.input.toPlainText() != "":
             with open(os.path.join(vault_path, self.namefile), 'w') as filestream:
                 s = FernetIntegration(keyword, self.input.toPlainText(), "e")
                 filestream.write(s)
