@@ -114,7 +114,6 @@ class MainWindow(QMainWindow):
     def test(self, s):
         self.savename = s
 
-
     def rename(self):
         s = self.naming.text()
         if self.namefile != "" and s != "" and s != self.cringe(s):
@@ -137,6 +136,8 @@ class MainWindow(QMainWindow):
                 self.list.setRowHidden(0, True)
 
     def createfile(self):
+        self.naming.clear()
+        self.input.clear()
         self.list.setRowHidden(0, False)
 
     def delete(self):
@@ -199,6 +200,7 @@ def FernetIntegration(keypass, thing_to_crypt, mode):
 
 app = QApplication(sys.argv)
 window = MainWindow()
+
 with open(password_path, 'r', encoding='utf-8') as filestream:
     passwrodasdadad = filestream.read()
     if passwrodasdadad == "":
