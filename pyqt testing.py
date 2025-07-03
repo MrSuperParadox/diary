@@ -18,7 +18,6 @@ if not os.path.exists(password_path):
         pass
 
 keyword = ""
-
 class MainWindow(QMainWindow):
     namefile = ""
     def __init__(self):
@@ -28,7 +27,7 @@ class MainWindow(QMainWindow):
         self.setFixedSize(QSize(600, 400))
 
         self.buttonw = QPushButton("create")
-        self.buttonw.clicked.connect(self.create)
+        self.buttonw.clicked.connect(self.createfile)
 
         self.deletebutton = QPushButton("delete")
         self.deletebutton.clicked.connect(self.delete)
@@ -92,13 +91,7 @@ class MainWindow(QMainWindow):
                 if len(g) == 0:
                     self.input.setPlainText("")
                     return
-                key = base64.urlsafe_b64encode(hashlib.sha256(keyword.encode()).digest())
-
-                f = Fernet(key)
-
-                Fernetkin = f.decrypt(g).decode()
-
-                self.input.setPlainText(Fernetkin)
+                self.input.setPlainText(FernetIntegration(keyword, g, "d"))
 
     def write(self):
         global keyword
@@ -108,6 +101,7 @@ class MainWindow(QMainWindow):
                 key = base64.urlsafe_b64encode(hashlib.sha256(keyword.encode()).digest())
                 f = Fernet(key)
                 Fernetkin = f.encrypt(self.input.toPlainText().encode())
+                # s = FernetIntegration(keyword, self.input.toPlainText().encode(), "e")
                 filestream.write(Fernetkin)
 
     def cringe(self, u):
@@ -141,7 +135,7 @@ class MainWindow(QMainWindow):
                 self.r.clear()
                 self.list.setRowHidden(0, True)
 
-    def create(self):
+    def createfile(self):
         self.list.setRowHidden(0, False)
 
     def delete(self):
@@ -164,13 +158,9 @@ class passwrodcreationwindow(QMainWindow):
     def passworde(self):
         if self.passworedenter.text() != "":
             with open(password_path, 'w', encoding='utf-8') as filestream:
-                key = base64.urlsafe_b64encode(hashlib.sha256(self.passworedenter.text().encode()).digest())
-                f = Fernet(key)
                 global keyword
                 keyword = self.passworedenter.text()
-                origintext = self.passworedenter.text()
-                corruptedtext = f.encrypt(origintext.encode()).decode()
-                filestream.write(corruptedtext)
+                filestream.write(FernetIntegration(keyword, keyword, "e"))
                 self.passworedenter.hide()
                 self.window.show()
 
@@ -186,23 +176,28 @@ class PsPsWindow(QMainWindow):
 
     def passwordentered(self):
         with open(password_path, 'r', encoding='utf-8') as pizdec:
-            key = base64.urlsafe_b64encode(hashlib.sha256(self.password.text().encode()).digest())
-            f = Fernet(key)
             xyq = pizdec.read()
-            origin = f.encrypt(self.password.text().encode())
-            decrorigin = f.decrypt(origin).decode()
             try:
-                cringe = f.decrypt(xyq).decode()
-                if self.password.text() == cringe:
+                if self.password.text() == FernetIntegration(self.password.text(), xyq, "d"):
                     global keyword
                     keyword = self.password.text()
                     self.password.hide()
                     self.window.show()
             except:
                 print("password error")
+def FernetIntegration(keypass, thing_to_crypt, mode):
+    key = base64.urlsafe_b64encode(hashlib.sha256(keypass.encode()).digest())
+    f = Fernet(key)
+    if mode == "e" :
+        a = f.encrypt(thing_to_crypt.encode()).decode()
+        return a
+    if mode == "d":
+        try:
+            b = f.decrypt(thing_to_crypt).decode()
+            return b
+        except:
+            print("password error")
 
-def FernetIntegration():
-    pass
 app = QApplication(sys.argv)
 window = MainWindow()
 with open(password_path, 'r', encoding='utf-8') as filestream:
