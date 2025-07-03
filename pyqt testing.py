@@ -123,6 +123,7 @@ class MainWindow(QMainWindow):
                     self.list.takeItem(i)
                     os.rename(old_file, new_file)
                     self.list.addItem(s)
+                    self.naming.clear()
 
     def returnation(self):
         s = self.r.text()
