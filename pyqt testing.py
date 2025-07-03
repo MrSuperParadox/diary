@@ -109,6 +109,7 @@ class MainWindow(QMainWindow):
     def current_file(self, s):
         if s != "" or self.input.toPlainText() != "":
             self.namefile = s
+
     def test(self, s):
         self.savename = s
 
@@ -174,14 +175,12 @@ class PsPsWindow(QMainWindow):
     def passwordentered(self):
         with open(password_path, 'r', encoding='utf-8') as pizdec:
             xyq = pizdec.read()
-            try:
-                if self.password.text() == FernetIntegration(self.password.text(), xyq, "d"):
-                    global keyword
-                    keyword = self.password.text()
-                    self.password.hide()
-                    self.window.show()
-            except:
-                print("password error")
+            if self.password.text() == FernetIntegration(self.password.text(), xyq, "d"):
+                global keyword
+                keyword = self.password.text()
+                self.password.hide()
+                self.window.show()
+
 def FernetIntegration(keypass, thing_to_crypt, mode):
     key = base64.urlsafe_b64encode(hashlib.sha256(keypass.encode()).digest())
     f = Fernet(key)
