@@ -97,12 +97,9 @@ class MainWindow(QMainWindow):
         global keyword
         s = self.r.text()
         if self.namefile or s != self.cringe(s):
-            with open(os.path.join(vault_path, self.namefile), 'wb') as filestream:
-                key = base64.urlsafe_b64encode(hashlib.sha256(keyword.encode()).digest())
-                f = Fernet(key)
-                Fernetkin = f.encrypt(self.input.toPlainText().encode())
-                # s = FernetIntegration(keyword, self.input.toPlainText().encode(), "e")
-                filestream.write(Fernetkin)
+            with open(os.path.join(vault_path, self.namefile), 'w') as filestream:
+                s = FernetIntegration(keyword, self.input.toPlainText(), "e")
+                filestream.write(s)
 
     def cringe(self, u):
         for j in range(self.list.count()):
